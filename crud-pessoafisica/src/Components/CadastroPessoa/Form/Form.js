@@ -1,20 +1,187 @@
-import React from "react";
-import Button from '@mui/material/Button';
-import { TextField, Typography, Container, Skeleton } from '@mui/material';
+import React, { useState } from "react";
+import { TextField, Button, Box, CircularProgress } from '@mui/material';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import DatePicker from '@mui/lab/DatePicker';
+import brLocale from 'date-fns/locale/pt-BR';
+import { withStyles } from '@material-ui/styles';
 
-function Form() {
-    return (
-        <>
-            <form>
-                <TextField fullWidth label="Nome Completo" variant="outlined" />
-                <TextField fullWidth label="CPF" variant="outlined" />
-                <TextField fullWidth label="Valor da renda" variant="outlined" />
-                
-                <Button type="submit" variant="outlined"> Cancelar</Button>
-                <Button type="submit" variant="contained"> Salvar</Button>
-            </form>
-        </>
-                );
+
+const styles = {
+    root: {
+        zIndex: 9999,
+        position: "fixed",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        background: "#F9F0F0",
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        opacity: 0.23,
+    },
+};
+
+const initialValues = {
+    nome: "",
+    cpf: "",
+    renda: "",
+    datanascimento: new Date(),
 }
 
-                export default Form;
+const localeMap = {
+    br: brLocale,
+};
+
+function Form({ classes }) {
+    const [data, setData] = useState(initialValues);
+    const [loading, setLoading] = useState(false);
+    const [inputValid, setInputValid] = useState({
+        nome: { valido: true, msg: "" },
+        cpf: { valido: true, msg: "" },
+        renda: { valido: true, msg: "" },
+        datanascimento: { valido: true, msg: "" }
+    });
+
+    const locale = 'br';
+    const msgCampoObrigatorio = "Campo obrigatório";
+
+
+
+
+    const handleChange = (event) => {
+        event.persist();
+
+        setData((values => ({
+            ...values,
+            [event.target.name]: event.target.value,
+        })));
+
+        setInputValid((values => ({
+            ...values,
+            [event.target.name]: { valido: true, msg: "" }
+        })));
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        if (validarCampos()) {
+            setLoading(true);
+            setTimeout(function () {
+                setLoading(false);
+            }, 5000);
+            return;
+        }
+
+        setLoading(false);
+        return;
+    }
+
+    const validarCampos = () => {
+        if (data.nome === "") {
+            setInputValid((values => ({
+                ...values,
+                nome: { valido: false, msg: msgCampoObrigatorio }
+            })));
+            return false;
+        }
+
+        if (data.cpf === "") {
+            setInputValid((values => ({
+                ...values,
+                cpf: { valido: false, msg: msgCampoObrigatorio }
+            })));
+            return false;
+        }
+
+        if (data.renda === "") {
+            setInputValid((values => ({
+                ...values,
+                renda: { valido: false, msg: msgCampoObrigatorio }
+            })));
+            return false;
+        }
+
+
+        if (inputValid.nome.valido && inputValid.cpf.valido && inputValid.renda.valido) {
+            return true;
+        }
+        else
+            return false;
+    }
+
+    return (
+        <>
+            {loading && (
+                <Box className={classes.root} sx={{ display: 'flex', }}>
+                    <CircularProgress size={100} />
+                </Box>)}
+
+            <form onSubmit={handleSubmit}>
+                <TextField
+                    name="nome"
+                    fullWidth
+                    margin="normal"
+                    label="Nome Completo"
+                    variant="outlined"
+                    onChange={(e) => handleChange(e)}
+                    error={!inputValid.nome.valido}
+                    helperText={inputValid.nome.msg}
+                />
+
+                <TextField
+                    name="cpf"
+                    fullWidth
+                    margin="normal"
+                    label="CPF"
+                    variant="outlined"
+                    onChange={(e) => handleChange(e)}
+                    error={!inputValid.cpf.valido}
+                    helperText={inputValid.cpf.msg}
+                />
+
+                <TextField
+                    name="renda"
+                    fullWidth
+                    margin="normal"
+                    label="Valor da renda"
+                    variant="outlined"
+                    onChange={(e) => handleChange(e)}
+                    error={!inputValid.renda.valido}
+                    helperText={inputValid.renda.msg}
+                />
+
+
+
+                <LocalizationProvider fullWidth dateAdapter={AdapterDateFns} locale={localeMap[locale]}>
+                    <DatePicker
+                        fullWidth
+                        label="Data de nascimento"
+                        value={data.datanascimento}
+                        onChange={(newValue) => {
+                            setData((values => ({
+                                ...values,
+                                datanascimento: newValue,
+                            })));
+                        }}
+                        renderInput={(params) => <TextField
+                            margin="normal"
+                            fullWidth
+                            text-align="center"
+                            {...params} />}
+                    />
+                </LocalizationProvider>
+
+                <Button fullWidth type="submit" size="large" variant="contained"> Salvar</Button>
+                <Button fullWidth type="submit" size="large" variant="outlined"> Cancelar</Button>
+
+            </form>
+        </>
+    );
+}
+
+export default withStyles(styles)(Form);
