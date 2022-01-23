@@ -11,7 +11,7 @@ function App() {
       <Typography variant="h3" component="h1" align="center">
         Cadastro de Pessoa
       </Typography>
-      <Container component="article" maxWidth="sm">
+      <Container component="article" maxWidth="lg">
         <CadastroPessoa />
       </Container>
 
