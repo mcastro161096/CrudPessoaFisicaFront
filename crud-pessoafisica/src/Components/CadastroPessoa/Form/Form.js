@@ -36,7 +36,7 @@ const localeMap = {
     br: brLocale,
 };
 
-function Form({ classes }) {
+function Form({ classes, handleForm }) {
     const [data, setData] = useState(initialValues);
     const [loading, setLoading] = useState(false);
     const [inputValid, setInputValid] = useState({
@@ -177,7 +177,7 @@ function Form({ classes }) {
                 </LocalizationProvider>
 
                 <Button fullWidth type="submit" size="large" variant="contained"> Salvar</Button>
-                <Button fullWidth type="submit" size="large" variant="outlined"> Cancelar</Button>
+                <Button fullWidth size="large" variant="outlined" onClick={handleForm}> Cancelar</Button>
 
             </form>
         </>
