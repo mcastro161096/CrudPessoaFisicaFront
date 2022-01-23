@@ -28,8 +28,8 @@ const styles = {
 const initialValues = {
     nome: "",
     cpf: "",
-    renda: "",
-    datanascimento: new Date(),
+    valorRenda: "",
+    dataNascimento: new Date(),
 }
 
 const localeMap = {
@@ -42,8 +42,8 @@ function Form({ classes, handleForm }) {
     const [inputValid, setInputValid] = useState({
         nome: { valido: true, msg: "" },
         cpf: { valido: true, msg: "" },
-        renda: { valido: true, msg: "" },
-        datanascimento: { valido: true, msg: "" }
+        valorRenda: { valido: true, msg: "" },
+        dataNascimento: { valido: true, msg: "" }
     });
 
     const locale = 'br';
@@ -98,16 +98,16 @@ function Form({ classes, handleForm }) {
             return false;
         }
 
-        if (data.renda === "") {
+        if (data.valorRenda === "") {
             setInputValid((values => ({
                 ...values,
-                renda: { valido: false, msg: msgCampoObrigatorio }
+                valorRenda: { valido: false, msg: msgCampoObrigatorio }
             })));
             return false;
         }
 
 
-        if (inputValid.nome.valido && inputValid.cpf.valido && inputValid.renda.valido) {
+        if (inputValid.nome.valido && inputValid.cpf.valido && inputValid.valorRenda.valido) {
             return true;
         }
         else
@@ -145,14 +145,14 @@ function Form({ classes, handleForm }) {
                 />
 
                 <TextField
-                    name="renda"
+                    name="valorRenda"
                     fullWidth
                     margin="normal"
-                    label="Valor da renda"
+                    label="Valor da Renda"
                     variant="outlined"
                     onChange={(e) => handleChange(e)}
-                    error={!inputValid.renda.valido}
-                    helperText={inputValid.renda.msg}
+                    error={!inputValid.valorRenda.valido}
+                    helperText={inputValid.valorRenda.msg}
                 />
 
 
@@ -161,11 +161,11 @@ function Form({ classes, handleForm }) {
                     <DatePicker
                         fullWidth
                         label="Data de nascimento"
-                        value={data.datanascimento}
+                        value={data.dataNascimento}
                         onChange={(newValue) => {
                             setData((values => ({
                                 ...values,
-                                datanascimento: newValue,
+                                dataNascimento: newValue,
                             })));
                         }}
                         renderInput={(params) => <TextField
