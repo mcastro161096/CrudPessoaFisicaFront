@@ -19,3 +19,12 @@ export async function post(payload) {
         return error;
     }
 }
+
+export async function deleteOn(id) {
+    try {
+        let response = await axios.delete(URL + `/${id}`);
+        return response;
+    } catch (error) {
+        return error;
+    }
+}

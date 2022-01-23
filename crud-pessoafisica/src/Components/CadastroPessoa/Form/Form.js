@@ -1,33 +1,15 @@
 import React, { useState } from "react";
-import { TextField, Button, Box, CircularProgress } from '@mui/material';
+import { TextField, Button } from '@mui/material';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
 import brLocale from 'date-fns/locale/pt-BR';
-import { withStyles } from '@material-ui/styles';
 
 import { post } from "../../../Services/CadastroPessoaFisicaService/CadastroPessoaFisicaService";
-import { statusError, ERRO_SALVAR, SUCESSO_SALVAR } from '../../Common/Constantes/Constantes';
+import { statusError, ERRO_SALVAR, SUCESSO_SALVAR, MSG_CAMPO_OBRIGATORIO } from '../../Common/Constantes/Constantes';
 import { formataMoedaAoDigitar } from '../../Common/FormataCampos/FormataCampos';
+import Loading from "../../Loading";
 
-
-const styles = {
-    root: {
-        zIndex: 9999,
-        position: "fixed",
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        background: "#F9F0F0",
-        width: "100%",
-        height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        opacity: 0.23,
-    },
-};
 
 const initialValues = {
     nomeCompleto: "",
@@ -40,7 +22,7 @@ const localeMap = {
     br: brLocale,
 };
 
-function Form({ classes, handleForm, handleExibirSnack, handleCloseSnack }) {
+function Form({ handleForm, handleExibirSnack }) {
     const [data, setData] = useState(initialValues);
     const [loading, setLoading] = useState(false);
     const [inputValid, setInputValid] = useState({
@@ -51,7 +33,6 @@ function Form({ classes, handleForm, handleExibirSnack, handleCloseSnack }) {
     });
 
     const locale = 'br';
-    const msgCampoObrigatorio = "Campo obrigatório";
 
 
 
@@ -94,23 +75,23 @@ function Form({ classes, handleForm, handleExibirSnack, handleCloseSnack }) {
 
         if (validarCampos()) {
             setLoading(true);
-            
-           let response = await post(data);
-           if (response) {
-            if (response.response && statusError.includes(response.response.status)) {
-                handleExibirSnack(ERRO_SALVAR);
-            }
-            else {
 
-                if (response) {
-                    handleExibirSnack(SUCESSO_SALVAR);
-                    handleForm();
+            let response = await post(data);
+            if (response) {
+                if (response.response && statusError.includes(response.response.status)) {
+                    handleExibirSnack(ERRO_SALVAR);
+                }
+                else {
+
+                    if (response) {
+                        handleExibirSnack(SUCESSO_SALVAR);
+                        handleForm();
+                    }
                 }
             }
-        }
-        else {
-            handleExibirSnack(ERRO_SALVAR)
-        }
+            else {
+                handleExibirSnack(ERRO_SALVAR)
+            }
         }
 
         setLoading(false);
@@ -121,7 +102,7 @@ function Form({ classes, handleForm, handleExibirSnack, handleCloseSnack }) {
         if (data.nomeCompleto === "") {
             setInputValid((values => ({
                 ...values,
-                nomeCompleto: { valido: false, msg: msgCampoObrigatorio }
+                nomeCompleto: { valido: false, msg: MSG_CAMPO_OBRIGATORIO }
             })));
             return false;
         }
@@ -129,7 +110,7 @@ function Form({ classes, handleForm, handleExibirSnack, handleCloseSnack }) {
         if (data.cpf === "") {
             setInputValid((values => ({
                 ...values,
-                cpf: { valido: false, msg: msgCampoObrigatorio }
+                cpf: { valido: false, msg: MSG_CAMPO_OBRIGATORIO }
             })));
             return false;
         }
@@ -137,7 +118,7 @@ function Form({ classes, handleForm, handleExibirSnack, handleCloseSnack }) {
         if (data.valorRenda === "") {
             setInputValid((values => ({
                 ...values,
-                valorRenda: { valido: false, msg: msgCampoObrigatorio }
+                valorRenda: { valido: false, msg: MSG_CAMPO_OBRIGATORIO }
             })));
             return false;
         }
@@ -153,9 +134,8 @@ function Form({ classes, handleForm, handleExibirSnack, handleCloseSnack }) {
     return (
         <>
             {loading && (
-                <Box className={classes.root} sx={{ display: 'flex', }}>
-                    <CircularProgress size={100} />
-                </Box>)}
+                <Loading />
+                )}
 
             <form onSubmit={handleSubmit}>
                 <TextField
@@ -223,4 +203,4 @@ function Form({ classes, handleForm, handleExibirSnack, handleCloseSnack }) {
     );
 }
 
-export default withStyles(styles)(Form);
+export default Form;

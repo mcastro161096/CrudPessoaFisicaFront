@@ -4,13 +4,17 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEdit from '@mui/icons-material/ModeEdit';
 
-import { getAll } from '../../../Services/CadastroPessoaFisicaService/CadastroPessoaFisicaService';
+import { getAll, deleteOn } from '../../../Services/CadastroPessoaFisicaService/CadastroPessoaFisicaService';
 import { formataData, formataMoeda } from '../../Common/FormataCampos/FormataCampos';
-import { statusError, ERRO_CARREGARLISTA } from '../../Common/Constantes/Constantes';
+import { statusError, ERRO_CARREGARLISTA, ERRO_EXCLUIR, SUCESSO_EXCLUIR } from '../../Common/Constantes/Constantes';
+import Modal from '../../Modal/';
+import Loading from '../../Loading';
 
-export default function List({handleCloseSnack, handleExibirSnack}) {
+export default function List({ handleExibirSnack}) {
     const [listapessoas, setListapessoas] = useState([]);
-    
+    const [modalOpen, setModalOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 30 },
@@ -55,6 +59,7 @@ export default function List({handleCloseSnack, handleExibirSnack}) {
     ];
 
     const fillList = async () => {
+        setLoading(true);
         let response = await getAll();
 
         if (response) {
@@ -77,10 +82,43 @@ export default function List({handleCloseSnack, handleExibirSnack}) {
         else {
             handleExibirSnack(ERRO_CARREGARLISTA);
         }
+        setLoading(false)
     }
 
-    const handleDelete = (values) => {
-        console.log(values);
+    const handleDelete = async (values) => {
+        setDeleteId(values.row.id);
+        handleModal();
+    }
+
+    const handleModal = () => {
+        setModalOpen(!modalOpen);
+    }
+
+    const handleAcceptModal = async () => {
+        setLoading(true);
+        let response = await deleteOn(deleteId);
+        if (response) {
+            if (response.response && statusError.includes(response.response.status)) {
+                handleExibirSnack(ERRO_EXCLUIR);
+            }
+            else {
+
+                if (response) {
+                    handleExibirSnack(SUCESSO_EXCLUIR);
+                    fillList();
+                }
+            }
+        }
+        else {
+            handleExibirSnack(ERRO_EXCLUIR)
+        }
+        handleModal();
+        setDeleteId(null);
+        setLoading(false);
+    }
+
+    const handleCloseModal = () => {
+        setDeleteId(null);
     }
 
 
@@ -91,6 +129,13 @@ export default function List({handleCloseSnack, handleExibirSnack}) {
 
     return (
         <>
+            {loading && (
+                <Loading />)}
+        <Modal 
+        openModal={modalOpen} 
+        handleModal={handleModal} 
+        handleAcceptModal={handleAcceptModal}
+        handleCloseModal={handleCloseModal} />
             <div style={{ height: "100vh", width: '100%' }}>
                 <DataGrid
                     rows={listapessoas}
