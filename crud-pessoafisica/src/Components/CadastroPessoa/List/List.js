@@ -7,13 +7,10 @@ import ModeEdit from '@mui/icons-material/ModeEdit';
 import { getAll } from '../../../Services/CadastroPessoaFisicaService/CadastroPessoaFisicaService';
 import { formataData, formataMoeda } from '../../Common/FormataCampos/FormataCampos';
 import { statusError, ERRO_CARREGARLISTA } from '../../Common/Constantes/Constantes';
-import CreateSnackbar from '../../CreateSnackbar/';
 
-export default function List() {
+export default function List({handleCloseSnack, handleExibirSnack}) {
     const [listapessoas, setListapessoas] = useState([]);
-    const [openSnack, setOpenSnack] = useState(false);
-    const [msg, setMsg] = useState("");
-
+    
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 30 },
@@ -62,8 +59,7 @@ export default function List() {
 
         if (response) {
             if (response.response && statusError.includes(response.response.status)) {
-                setMsg(ERRO_CARREGARLISTA);
-                setOpenSnack(true);
+                handleExibirSnack(ERRO_CARREGARLISTA);
             }
             else {
 
@@ -79,17 +75,12 @@ export default function List() {
             }
         }
         else {
-            setMsg(ERRO_CARREGARLISTA);
-            setOpenSnack(true);
+            handleExibirSnack(ERRO_CARREGARLISTA);
         }
     }
 
     const handleDelete = (values) => {
         console.log(values);
-    }
-
-    const handleCloseSnack = () => {
-        setOpenSnack(!openSnack);
     }
 
 
@@ -100,7 +91,6 @@ export default function List() {
 
     return (
         <>
-            <CreateSnackbar openSnack={openSnack} msgSnack={msg} handleCloseSnack={handleCloseSnack} />
             <div style={{ height: "100vh", width: '100%' }}>
                 <DataGrid
                     rows={listapessoas}

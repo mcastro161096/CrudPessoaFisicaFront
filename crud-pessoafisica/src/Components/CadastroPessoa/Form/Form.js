@@ -6,6 +6,10 @@ import DatePicker from '@mui/lab/DatePicker';
 import brLocale from 'date-fns/locale/pt-BR';
 import { withStyles } from '@material-ui/styles';
 
+import { post } from "../../../Services/CadastroPessoaFisicaService/CadastroPessoaFisicaService";
+import { statusError, ERRO_SALVAR, SUCESSO_SALVAR } from '../../Common/Constantes/Constantes';
+import { formataMoedaAoDigitar } from '../../Common/FormataCampos/FormataCampos';
+
 
 const styles = {
     root: {
@@ -26,7 +30,7 @@ const styles = {
 };
 
 const initialValues = {
-    nome: "",
+    nomeCompleto: "",
     cpf: "",
     valorRenda: "",
     dataNascimento: new Date(),
@@ -36,11 +40,11 @@ const localeMap = {
     br: brLocale,
 };
 
-function Form({ classes, handleForm }) {
+function Form({ classes, handleForm, handleExibirSnack, handleCloseSnack }) {
     const [data, setData] = useState(initialValues);
     const [loading, setLoading] = useState(false);
     const [inputValid, setInputValid] = useState({
-        nome: { valido: true, msg: "" },
+        nomeCompleto: { valido: true, msg: "" },
         cpf: { valido: true, msg: "" },
         valorRenda: { valido: true, msg: "" },
         dataNascimento: { valido: true, msg: "" }
@@ -66,15 +70,47 @@ function Form({ classes, handleForm }) {
         })));
     };
 
-    const handleSubmit = (event) => {
+    const handleChangeRenda = (event) => {
+        event.persist();
+
+        let rendaDigitada = event.target.value.replace("%", "");
+        rendaDigitada = rendaDigitada.replace(/[^\d\.]+/g, '');
+        rendaDigitada = formataMoedaAoDigitar(rendaDigitada);
+
+        setData(values => ({
+          ...values,
+          valorRenda: rendaDigitada,
+        }));
+
+        setInputValid((values => ({
+            ...values,
+            valorRenda: { valido: true, msg: "" }
+        })));
+    
+      };
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         if (validarCampos()) {
             setLoading(true);
-            setTimeout(function () {
-                setLoading(false);
-            }, 5000);
-            return;
+            
+           let response = await post(data);
+           if (response) {
+            if (response.response && statusError.includes(response.response.status)) {
+                handleExibirSnack(ERRO_SALVAR);
+            }
+            else {
+
+                if (response) {
+                    handleExibirSnack(SUCESSO_SALVAR);
+                    handleForm();
+                }
+            }
+        }
+        else {
+            handleExibirSnack(ERRO_SALVAR)
+        }
         }
 
         setLoading(false);
@@ -82,10 +118,10 @@ function Form({ classes, handleForm }) {
     }
 
     const validarCampos = () => {
-        if (data.nome === "") {
+        if (data.nomeCompleto === "") {
             setInputValid((values => ({
                 ...values,
-                nome: { valido: false, msg: msgCampoObrigatorio }
+                nomeCompleto: { valido: false, msg: msgCampoObrigatorio }
             })));
             return false;
         }
@@ -107,7 +143,7 @@ function Form({ classes, handleForm }) {
         }
 
 
-        if (inputValid.nome.valido && inputValid.cpf.valido && inputValid.valorRenda.valido) {
+        if (inputValid.nomeCompleto.valido && inputValid.cpf.valido && inputValid.valorRenda.valido) {
             return true;
         }
         else
@@ -123,18 +159,20 @@ function Form({ classes, handleForm }) {
 
             <form onSubmit={handleSubmit}>
                 <TextField
-                    name="nome"
+                    name="nomeCompleto"
+                    value={data.nomeCompleto}
                     fullWidth
                     margin="normal"
                     label="Nome Completo"
                     variant="outlined"
                     onChange={(e) => handleChange(e)}
-                    error={!inputValid.nome.valido}
-                    helperText={inputValid.nome.msg}
+                    error={!inputValid.nomeCompleto.valido}
+                    helperText={inputValid.nomeCompleto.msg}
                 />
 
                 <TextField
                     name="cpf"
+                    value={data.cpf}
                     fullWidth
                     margin="normal"
                     label="CPF"
@@ -146,11 +184,12 @@ function Form({ classes, handleForm }) {
 
                 <TextField
                     name="valorRenda"
+                    value={data.valorRenda}
                     fullWidth
                     margin="normal"
                     label="Valor da Renda"
                     variant="outlined"
-                    onChange={(e) => handleChange(e)}
+                    onChange={(e) => handleChangeRenda(e)}
                     error={!inputValid.valorRenda.valido}
                     helperText={inputValid.valorRenda.msg}
                 />

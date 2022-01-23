@@ -10,3 +10,12 @@ export async function getAll() {
         return error;
     }
 }
+
+export async function post(payload) {
+    try {
+        let response = await axios.post(URL, payload);
+        return response;
+    } catch (error) {
+        return error;
+    }
+}
