@@ -4,14 +4,14 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEdit from '@mui/icons-material/ModeEdit';
 
-import { getAll, deleteOn } from '../../../Services/CadastroPessoaFisicaService/CadastroPessoaFisicaService';
+import { getAll, deleteOne, getOne } from '../../../Services/CadastroPessoaFisicaService/CadastroPessoaFisicaService';
 import { formataData, formataMoeda } from '../../Common/FormataCampos/FormataCampos';
 import { statusError, ERRO_CARREGARLISTA, ERRO_EXCLUIR, SUCESSO_EXCLUIR } from '../../Common/Constantes/Constantes';
 import Modal from '../../Modal/';
 import Loading from '../../Loading';
 
-export default function List({ handleExibirSnack}) {
-    const [listapessoas, setListapessoas] = useState([]);
+export default function List({ handleExibirSnack, handleEdit}) {
+    const [listaPessoas, setListaPessoas] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -49,7 +49,7 @@ export default function List({ handleExibirSnack}) {
                         variant="contained"
                         color="primary"
                         onClick={(event) => {
-                            alert(cellValues);
+                            handleEditPrepare(cellValues);
                         }}>
                         <ModeEdit />
                     </IconButton>
@@ -75,7 +75,7 @@ export default function List({ handleExibirSnack}) {
                         return item;
                     })
 
-                    setListapessoas((lista));
+                    setListaPessoas((lista));
                 }
             }
         }
@@ -96,7 +96,7 @@ export default function List({ handleExibirSnack}) {
 
     const handleAcceptModal = async () => {
         setLoading(true);
-        let response = await deleteOn(deleteId);
+        let response = await deleteOne(deleteId);
         if (response) {
             if (response.response && statusError.includes(response.response.status)) {
                 handleExibirSnack(ERRO_EXCLUIR);
@@ -121,6 +121,12 @@ export default function List({ handleExibirSnack}) {
         setDeleteId(null);
     }
 
+    const handleEditPrepare = async (values) => {
+        let response = await getOne(values.row.id);
+        let pessoa = response.data;
+        handleEdit(pessoa);
+    }
+
 
     useEffect(() => {
         fillList();
@@ -138,7 +144,7 @@ export default function List({ handleExibirSnack}) {
         handleCloseModal={handleCloseModal} />
             <div style={{ height: "100vh", width: '100%' }}>
                 <DataGrid
-                    rows={listapessoas}
+                    rows={listaPessoas}
                     columns={columns}
                     rowsPerPageOptions={[5]}
                     hideFooter

@@ -3,17 +3,18 @@ import Button from '@mui/material/Button';
 
 import Form from "./Form/Form";
 import List from "./List/List"
-import { statusError, ERRO_CARREGARLISTA } from '../Common/Constantes/Constantes';
 import CreateSnackbar from '../CreateSnackbar/';
 
 function CadastroPessoa() {
     const [showForm, setShowForm] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
     const [msg, setMsg] = useState("");
+    const [current, setCurrent] = useState(null);
 
 
     const handleForm = () => {
         setShowForm(!showForm);
+        setCurrent(null);
     }
 
     const handleCloseSnack = () => {
@@ -25,6 +26,10 @@ function CadastroPessoa() {
         setOpenSnack(true);
     }
 
+    const handleEdit = (pessoa) => {
+        setCurrent(pessoa);
+        setShowForm(true);
+    }
 
     return (
         <>
@@ -32,8 +37,8 @@ function CadastroPessoa() {
             {showForm && (
                 <Form 
                 handleForm={handleForm} 
-                handleExibirSnack={handleExibirSnack} 
-                handleCloseSnack={handleCloseSnack} />
+                handleExibirSnack={handleExibirSnack}
+                current={current} />
             )}
 
             {!showForm && (
@@ -50,7 +55,7 @@ function CadastroPessoa() {
 
             <List 
             handleExibirSnack={handleExibirSnack} 
-            handleCloseSnack={handleCloseSnack} />
+            handleEdit={handleEdit} />
             </>
             )}
         </>

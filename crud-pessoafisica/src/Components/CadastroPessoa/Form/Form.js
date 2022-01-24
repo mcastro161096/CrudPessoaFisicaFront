@@ -1,17 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button } from '@mui/material';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
 import brLocale from 'date-fns/locale/pt-BR';
 
-import { post } from "../../../Services/CadastroPessoaFisicaService/CadastroPessoaFisicaService";
+import { post, putOne } from "../../../Services/CadastroPessoaFisicaService/CadastroPessoaFisicaService";
 import { statusError, ERRO_SALVAR, SUCESSO_SALVAR, MSG_CAMPO_OBRIGATORIO } from '../../Common/Constantes/Constantes';
-import { formataMoedaAoDigitar } from '../../Common/FormataCampos/FormataCampos';
+import { formataMoedaAoDigitar, formataCpf } from '../../Common/FormataCampos/FormataCampos';
 import Loading from "../../Loading";
 
 
 const initialValues = {
+    id: null,
     nomeCompleto: "",
     cpf: "",
     valorRenda: "",
@@ -22,7 +23,7 @@ const localeMap = {
     br: brLocale,
 };
 
-function Form({ handleForm, handleExibirSnack }) {
+function Form({ handleForm, handleExibirSnack, current }) {
     const [data, setData] = useState(initialValues);
     const [loading, setLoading] = useState(false);
     const [inputValid, setInputValid] = useState({
@@ -40,10 +41,21 @@ function Form({ handleForm, handleExibirSnack }) {
     const handleChange = (event) => {
         event.persist();
 
-        setData((values => ({
-            ...values,
-            [event.target.name]: event.target.value,
-        })));
+        if (event.target.name === "cpf") {
+            if (event.target.value.length > 14)
+                return;
+
+            setData((values => ({
+                ...values,
+                [event.target.name]: formataCpf(event.target.value),
+            })));
+        }
+        else {
+            setData((values => ({
+                ...values,
+                [event.target.name]: event.target.value,
+            })));
+        }
 
         setInputValid((values => ({
             ...values,
@@ -75,8 +87,13 @@ function Form({ handleForm, handleExibirSnack }) {
 
         if (validarCampos()) {
             setLoading(true);
+            let response;
+            if (data.id > 0)
+                 response = await putOne(data);
+            else
+                 response = await post(data);
 
-            let response = await post(data);
+
             if (response) {
                 if (response.response && statusError.includes(response.response.status)) {
                     handleExibirSnack(ERRO_SALVAR);
@@ -107,7 +124,7 @@ function Form({ handleForm, handleExibirSnack }) {
             return false;
         }
 
-        if (data.cpf === "") {
+        if (data.cpf === "" || data.cpf.length < 14) {
             setInputValid((values => ({
                 ...values,
                 cpf: { valido: false, msg: MSG_CAMPO_OBRIGATORIO }
@@ -130,6 +147,19 @@ function Form({ handleForm, handleExibirSnack }) {
         else
             return false;
     }
+
+    useEffect(() => {
+        if (current) {
+            setData({
+                id: current.id ? current.id : null,
+                nomeCompleto: current.nomeCompleto ? current.nomeCompleto : "",
+                cpf: current.cpf ? current.cpf : "",
+                valorRenda: current.valorRenda ? current.valorRenda : "",
+                dataNascimento: current.dataNascimento ? current.dataNascimento : "",
+            })
+        }
+    }, [current]);
+    
 
     return (
         <>
