@@ -3,6 +3,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEdit from '@mui/icons-material/ModeEdit';
+import PersonSearch from '@mui/icons-material/PersonSearch';
 
 import { getAll, deleteOne, getOne } from '../../../Services/CadastroPessoaFisicaService/CadastroPessoaFisicaService';
 import { formataData, formataMoeda } from '../../Common/FormataCampos/FormataCampos';
@@ -10,7 +11,7 @@ import { statusError, ERRO_CARREGARLISTA, ERRO_EXCLUIR, SUCESSO_EXCLUIR } from '
 import Modal from '../../Modal/';
 import Loading from '../../Loading';
 
-export default function List({ handleExibirSnack, handleEdit}) {
+export default function List({ handleExibirSnack, handleEdit, handleVisualizar}) {
     const [listaPessoas, setListaPessoas] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
@@ -18,10 +19,27 @@ export default function List({ handleExibirSnack, handleEdit}) {
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 30 },
-        { field: 'nomeCompleto', headerName: 'Nome Completo', width: 400 },
+        { field: 'nomeCompleto', headerName: 'Nome Completo', width: 300 },
         { field: 'cpf', headerName: 'CPF', width: 200 },
         { field: 'valorRenda', headerName: 'Valor Renda', width: 130 },
         { field: 'dataNascimento', headerName: 'Data nascimento', width: 160 },
+        {
+            field: "Visualizar",
+            sortable: false,
+            renderCell: (cellValues) => {
+                return (
+                    <IconButton
+                        aria-label="visualizar"
+                        variant="contained"
+                        color="primary"
+                        onClick={(event) => {
+                            handleVisualizarPrepare(cellValues);
+                        }}>
+                        <PersonSearch />
+                    </IconButton>
+                );
+            }
+        },
         {
             field: "Excluir",
             sortable: false,
@@ -127,6 +145,11 @@ export default function List({ handleExibirSnack, handleEdit}) {
         handleEdit(pessoa);
     }
 
+    const handleVisualizarPrepare = async (values) => {
+        let response = await getOne(values.row.id);
+        let pessoa = response.data;
+        handleVisualizar(pessoa);
+    }
 
     useEffect(() => {
         fillList();

@@ -10,11 +10,14 @@ function CadastroPessoa() {
     const [openSnack, setOpenSnack] = useState(false);
     const [msg, setMsg] = useState("");
     const [current, setCurrent] = useState(null);
+    const [isVisualizacao, setIsVisualizacao] = useState(false);
 
 
     const handleForm = () => {
         setShowForm(!showForm);
         setCurrent(null);
+        if(isVisualizacao)
+            setIsVisualizacao(false);
     }
 
     const handleCloseSnack = () => {
@@ -31,6 +34,12 @@ function CadastroPessoa() {
         setShowForm(true);
     }
 
+    const handleVisualizar = (pessoa) => {
+        setCurrent(pessoa);
+        setIsVisualizacao(true);
+        setShowForm(true);
+    }
+
     return (
         <>
          <CreateSnackbar openSnack={openSnack} msgSnack={msg} handleCloseSnack={handleCloseSnack} />
@@ -38,7 +47,8 @@ function CadastroPessoa() {
                 <Form 
                 handleForm={handleForm} 
                 handleExibirSnack={handleExibirSnack}
-                current={current} />
+                current={current}
+                isVisualizacao={isVisualizacao} />
             )}
 
             {!showForm && (
@@ -55,7 +65,8 @@ function CadastroPessoa() {
 
             <List 
             handleExibirSnack={handleExibirSnack} 
-            handleEdit={handleEdit} />
+            handleEdit={handleEdit}
+            handleVisualizar={handleVisualizar} />
             </>
             )}
         </>

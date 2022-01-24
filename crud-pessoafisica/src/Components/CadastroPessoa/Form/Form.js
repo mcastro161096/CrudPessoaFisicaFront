@@ -23,7 +23,7 @@ const localeMap = {
     br: brLocale,
 };
 
-function Form({ handleForm, handleExibirSnack, current }) {
+function Form({ handleForm, handleExibirSnack, current, isVisualizacao }) {
     const [data, setData] = useState(initialValues);
     const [loading, setLoading] = useState(false);
     const [inputValid, setInputValid] = useState({
@@ -178,6 +178,7 @@ function Form({ handleForm, handleExibirSnack, current }) {
                     onChange={(e) => handleChange(e)}
                     error={!inputValid.nomeCompleto.valido}
                     helperText={inputValid.nomeCompleto.msg}
+                    disabled={isVisualizacao}
                 />
 
                 <TextField
@@ -190,6 +191,7 @@ function Form({ handleForm, handleExibirSnack, current }) {
                     onChange={(e) => handleChange(e)}
                     error={!inputValid.cpf.valido}
                     helperText={inputValid.cpf.msg}
+                    disabled={isVisualizacao}
                 />
 
                 <TextField
@@ -202,12 +204,14 @@ function Form({ handleForm, handleExibirSnack, current }) {
                     onChange={(e) => handleChangeRenda(e)}
                     error={!inputValid.valorRenda.valido}
                     helperText={inputValid.valorRenda.msg}
+                    disabled={isVisualizacao}
                 />
 
 
 
                 <LocalizationProvider fullWidth dateAdapter={AdapterDateFns} locale={localeMap[locale]}>
                     <DatePicker
+                        disabled={isVisualizacao}
                         fullWidth
                         label="Data de nascimento"
                         value={data.dataNascimento}
@@ -224,9 +228,10 @@ function Form({ handleForm, handleExibirSnack, current }) {
                             {...params} />}
                     />
                 </LocalizationProvider>
-
-                <Button fullWidth type="submit" size="large" variant="contained"> Salvar</Button>
-                <Button fullWidth size="large" variant="outlined" onClick={handleForm}> Cancelar</Button>
+                {!isVisualizacao && (
+                   <Button fullWidth type="submit" size="large" variant="contained" disabled={isVisualizacao}> Salvar</Button>
+                )}
+                <Button fullWidth size="large" variant="outlined" onClick={handleForm}> {isVisualizacao ? "Voltar" : "Cancelar"}</Button>
 
             </form>
         </>
